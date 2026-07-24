@@ -7,7 +7,7 @@ use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use UserServices;
 
 class UserController extends Controller
 {
@@ -99,16 +99,13 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(UserRequest $request)
+    public function store(UserServices $userService , UserRequest $request)
     {
         //
         $userInfo = $request->validated();
 
-        $user = User::create([
-            'name' => $userInfo['name'],
-            'email' => $userInfo['email'],
-            'password'=> Hash::make($userInfo['password'])
-        ]);
+        $image = $request->file('image');
+        $user = $userService->insertUser($userInfo , $image);
 
         return response()->json([
             'user' => new UserResource($user)
@@ -131,25 +128,16 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserRequest $request, string $id)
+    public function update(UserServices $userService , UserRequest $request, User $user)
     {
         //
-        $user = User::findOrFail($id);
-        if((int)$request->user()->id !== (int)$id && $request->user()->role !== 'admin'){
-            return response()->json([
-                'message' => 'You do not have permission to update this profile.'
-            ],403);
-        }
+        $authUser = $request->user();
+        $image = $request->file('image');
+        $this->authorize('update',[$authUser , $user]);
 
         $userInfo = $request->validated();
         
-        if(empty($userInfo['password'])){
-            unset($userInfo['password']);
-        }else{
-            $userInfo['password'] = Hash::make($userInfo['password']);
-        }
-
-        $user->update($userInfo);
+        $user = $userService->UpdateUser($userInfo , $user , $image);
 
         return response()->json([
             'updated_user' => new UserResource($user)
