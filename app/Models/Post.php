@@ -47,6 +47,11 @@ class Post extends Model
         return $this->hasMany(PostView::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(PostImages::class);
+    }
+
     public function hashtags(): BelongsToMany
     {
         return $this->belongsToMany(HashTag::class,'hashtag_post','post_id','hashtag_id');
