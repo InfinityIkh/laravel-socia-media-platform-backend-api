@@ -12,7 +12,7 @@ class FeedController extends Controller
     public function index(Request $request){
         //
         $followingIds = $request->user()->following->pluck('id');
-        $followingPosts = Post::whereIn('id',$followingIds)->latest()->get();
+        $followingPosts = Post::with(['user'])->whereIn('user_id',$followingIds)->latest()->get();
 
         return response()->json([
             'posts' => PostResource::collection($followingPosts)
@@ -20,7 +20,8 @@ class FeedController extends Controller
     }
 
     public function mostLiked(){
-        $posts = Post::withCount('likes')
+        $posts = Post::with(['user','likes'])
+                       ->withCount('likes')
                        ->orderBy('likes_count','desc')
                        ->get();
                        
@@ -30,7 +31,8 @@ class FeedController extends Controller
     }
 
     public function mostWatched(){
-        $posts = Post::withCount('views')
+        $posts = Post::with(['user','views'])
+                       ->withCount('views')
                        ->orderBy('views_count' , 'desc')
                        ->get();
 
