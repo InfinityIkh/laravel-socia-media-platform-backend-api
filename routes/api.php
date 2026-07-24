@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FeedController;
+use App\Http\Controllers\HashTagsController;
 use App\Http\Controllers\LikesController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
@@ -72,4 +73,6 @@ Route::middleware('auth:sanctum')->group(function(){
     //Suggestions
     Route::get('/friends-of-friends',[UserController::class , 'friendsOfFriends']);
     Route::get('/may-you-knows',[UserController::class , 'mayYouKnow']);
+    //HashTags
+    Route::get('/{hashtag}/posts',[HashTagsController::class,'posts']);
 });
