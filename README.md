@@ -149,11 +149,11 @@ Installation
 
 Clone Repository
 
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
+git clone https://github.com/L1m1tlesAyman/laravel-socia-media-platform-backend-api.git
 
 Navigate To Project
 
-cd YOUR_REPOSITORY
+cd laravel-socia-media-platform-backend-api
 
 Install Dependencies
 
