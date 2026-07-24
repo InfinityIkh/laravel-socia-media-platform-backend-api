@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PostRequest;
 use App\Http\Resources\PostResource;
+use App\Models\HashTag;
 use App\Models\Post;
 use Illuminate\Http\Request;
 
@@ -25,12 +26,22 @@ class PostController extends Controller
      */
     public function store(PostRequest $request)
     {
+        //
         $validated = $request->validated();
-
         $post = $request->user()->posts()->create([
             'title' => $validated['title'],
             'body' => $validated['body'],
         ]);
+
+        $hashtagsIds = [];
+        preg_match_all('/#\w+/',$validated['body'],$matches);
+        foreach(array_unique($matches[0]) as $elem){
+            $hashtag = HashTag::firstOrCreate([
+                'hashtag' => strtolower(ltrim($elem , '#'))
+            ]);
+            $hashtagsIds = array_merge($hashtagsIds , [$hashtag->id]);
+        }
+        $post->hashtags()->sync($hashtagsIds);
 
         return response()->json([
             'post' => new PostResource($post)
@@ -57,6 +68,7 @@ class PostController extends Controller
      */
     public function update(PostRequest $request, Post $post)
     {
+        //
         $validated = $request->validated();
 
         $this->authorize('update',$post);
@@ -64,6 +76,16 @@ class PostController extends Controller
         $post->title = $validated['title'];
         $post->body = $validated['body'];
         $post->save();
+
+        $hashtagsIds = [];
+        preg_match_all('/#\w+/',$validated['body'],$matches);
+        foreach(array_unique($matches[0]) as $elem){
+            $hashtag = HashTag::firstOrCreate([
+                'hashtag' => strtolower(ltrim($elem , '#'))
+            ]);
+            $hashtagsIds = array_merge($hashtagsIds , [$hashtag->id]);
+        }
+        $post->hashtags()->sync($hashtagsIds);
         
         return response()->json([
             'updated_post'=> new PostResource($post)
