@@ -27,7 +27,7 @@ class UserRequest extends FormRequest
             'name' => ['required','min:5','max:255'],
             'email' => ['required','email','unique:users,email,'.$userId],
             'role' => ['nullable', 'string', 'in:user,admin'],
-            'image' => ['nullable','image','mimes:jpeg,jpg,png','size:2048'],
+            'image' => ['nullable','image','mimes:jpeg,jpg,png','max:2048'],
             'password' => [
                 $this->isMethod('post') ? 'required' : 'nullable' ,
                 'min:8',
