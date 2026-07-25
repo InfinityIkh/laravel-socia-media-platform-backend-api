@@ -7,6 +7,7 @@ use App\Http\Resources\PostResource;
 use App\Models\HashTag;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use PostService;
 
 class PostController extends Controller
 {
@@ -24,24 +25,14 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PostRequest $request)
+    public function store(PostService $postService , PostRequest $request)
     {
         //
         $validated = $request->validated();
-        $post = $request->user()->posts()->create([
-            'title' => $validated['title'],
-            'body' => $validated['body'],
-        ]);
+        $user = $request->user();
+        $images = $request->file('images');
 
-        $hashtagsIds = [];
-        preg_match_all('/#\w+/',$validated['body'],$matches);
-        foreach(array_unique($matches[0]) as $elem){
-            $hashtag = HashTag::firstOrCreate([
-                'hashtag' => strtolower(ltrim($elem , '#'))
-            ]);
-            $hashtagsIds = array_merge($hashtagsIds , [$hashtag->id]);
-        }
-        $post->hashtags()->sync($hashtagsIds);
+        $post = $postService->insertPost($validated , $user , $images);
 
         return response()->json([
             'post' => new PostResource($post)
@@ -66,29 +57,18 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(PostRequest $request, Post $post)
+    public function update(PostService $postService , PostRequest $request, Post $post)
     {
         //
         $validated = $request->validated();
 
         $this->authorize('update',$post);
+        $images = $request->file('images');
 
-        $post->title = $validated['title'];
-        $post->body = $validated['body'];
-        $post->save();
-
-        $hashtagsIds = [];
-        preg_match_all('/#\w+/',$validated['body'],$matches);
-        foreach(array_unique($matches[0]) as $elem){
-            $hashtag = HashTag::firstOrCreate([
-                'hashtag' => strtolower(ltrim($elem , '#'))
-            ]);
-            $hashtagsIds = array_merge($hashtagsIds , [$hashtag->id]);
-        }
-        $post->hashtags()->sync($hashtagsIds);
+        $updatedPost = $postService->updatePost($validated , $post , $images);
         
         return response()->json([
-            'updated_post'=> new PostResource($post)
+            'updated_post'=> new PostResource($updatedPost)
         ],200);
     }
 
