@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\UserMentionEvent;
 use App\Models\HashTag;
 use App\Models\Post;
 use App\Models\User;
@@ -14,23 +15,16 @@ class PostService{
             'body' => $validatedInfo['body'],
         ]);
 
-        preg_match_all('/#(\w+)/',$validatedInfo['body'],$matches);
-        $hashtagsNames = array_unique(array_map('strtolower',$matches[1] ?? []));
-        $hashtagsIds = collect($hashtagsNames)->map(function ($hashtag) {
-            return HashTag::firstOrCreate([
-                'hashtag' => $hashtag
-            ])->id;
-        })->toArray();
-
+        //
+        $hashtagsIds = $this->gettingHashtagAndInsert($validatedInfo);
         $post->hashtags()->sync($hashtagsIds);
 
+        //
+        $this->mentionUsers($validatedInfo , $post->user , $post);
+
+        //
         if($images){
-            foreach($images as $image){
-                $imagePath = $image->store('photos','public');
-                $post->images()->create([
-                    'image_path' => $imagePath
-                ]);
-            }
+            $this->uploadImages($images , $post);
         }
         return $post;
     }
@@ -42,21 +36,27 @@ class PostService{
             'title' => $validatedInfo['title'],
             'body' => $validatedInfo['body']
         ]);
+
+        //
         if(!$images){
             unset($validatedInfo['images']);
         }else{
-            foreach($post->images as $image){
-                Storage::disk('public')->delete($image->image_path);
-            }
-            $post->images()->delete();
-            foreach($images as $image){
-                $path = $image->store('photos','public');
-                $post->images()->create([
-                    'image_path' => $path
-                ]);
-            }
+            $this->deleteImages($post);
+            $this->uploadImages($images , $post);
         }
 
+        //
+        $hashtagsIds = $this->gettingHashtagAndInsert($validatedInfo);
+        $post->hashtags()->sync($hashtagsIds);
+
+        //
+        $this->mentionUsers($validatedInfo , $post->user , $post);
+
+        return $post->load('images','user');
+    }
+
+    public function gettingHashtagAndInsert(array $validatedInfo){
+        //
         preg_match_all('/#(\w+)/',$validatedInfo['body'],$matches);
         $hashtagsNames = array_unique(array_map('strtolower', $matches[1] ?? []));
 
@@ -65,9 +65,37 @@ class PostService{
                 'hashtag' => $hashtag
             ])->id;
         })->toArray();
-        
-        $post->hashtags()->sync($hashtagsIds);
 
-        return $post->load('images','user');
+        return $hashtagsIds;
+    }
+
+    public function mentionUsers(array $validatedInfo , User $user , Post $post){
+        //
+        preg_match_all('/@(\w+)/',$validatedInfo['body'] ?? '',$matchesBody);
+        preg_match_all('/@(\w+)/',$validatedInfo['title'] ?? '',$matchesTitle);
+        $mentionNamesTitile = array_unique(array_map('strtolower', $matchesTitle[1] ?? []));
+        $mentionNamesBody = array_unique(array_map('strtolower', $matchesBody[1] ?? []));
+
+        $mentions = array_merge($mentionNamesBody , $mentionNamesTitile);
+        foreach($mentions as $targetedUser){
+            event(new UserMentionEvent($user , $post , $targetedUser));
+        }
+    }
+
+    public function uploadImages(array $images , Post $post){
+        //
+        foreach($images as $image){
+            $imagePath = $image->store('photos','public');
+            $post->images()->create([
+                'image_path' => $imagePath
+            ]);
+        }
+    }
+
+    public function deleteImages(Post $post){
+        foreach($post->images as $image){
+            Storage::disk('public')->delete($image->image_path);
+        }
+        $post->images()->delete();
     }
 }
