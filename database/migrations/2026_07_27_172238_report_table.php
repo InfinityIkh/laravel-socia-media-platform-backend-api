@@ -18,6 +18,8 @@ return new class extends Migration
             $table->morphs('reportable');
             $table->foreignId('reporter_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
+
+            $table->unique(['reporter_id','reportable_id','reportable_type']);
         });
     }
 
