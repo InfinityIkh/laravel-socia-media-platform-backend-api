@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Post extends Model
 {
@@ -55,5 +56,10 @@ class Post extends Model
     public function hashtags(): BelongsToMany
     {
         return $this->belongsToMany(HashTag::class,'hashtag_post','post_id','hashtag_id');
+    }
+
+    public function reports(): MorphMany
+    {
+        return $this->morphMany(Report::class,'reportable');
     }
 }
