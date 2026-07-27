@@ -97,4 +97,9 @@ class User extends Authenticatable
     {
         return $this->morphMany(Report::class,'reportable');
     }
+
+    public function blockedUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class,'blocked_users','blocker_id','blocked_id');
+    }
 }
