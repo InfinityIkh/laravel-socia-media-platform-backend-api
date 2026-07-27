@@ -31,6 +31,20 @@ class UserController extends Controller
         ],202);
     }
 
+    public function block(Request $request , User $user){
+        //
+        if((int)$user->id === (int)$request->user()->id){
+            return response()->json([
+                'message' => 'You cannot block yourself.'
+            ],422);
+        }
+        $blockedUser = $request->user()->blockedUsers()->toggle($user->id);
+
+        return response()->json([
+            'blocked' => !empty($blockedUser['attached'])
+        ],202);
+    }
+
     public function report(ReportRequest $request , User $user){
         //
         if((int)$user->id === (int)$request->user()->id){
@@ -105,6 +119,15 @@ class UserController extends Controller
         $followers = $user->load('following');
         return response()->json([
             'following' => UserResource::collection($followers->following)
+        ],200);
+    }
+
+    public function blocked_users(Request $request){
+        //
+        $blockedUsers = $request->user()->load('blockedUsers');
+
+        return response()->json([
+            'blocked_users' => UserResource::collection($blockedUsers->blockedUsers)
         ],200);
     }
     /**
