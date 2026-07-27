@@ -14,7 +14,7 @@ return new class extends Migration
         //
         Schema::create('reports',function(Blueprint $table){
             $table->id();
-            $table->string('reason');
+            $table->string('raison');
             $table->morphs('reportable');
             $table->foreignId('reporter_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
