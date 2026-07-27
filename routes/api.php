@@ -75,4 +75,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/may-you-knows',[UserController::class , 'mayYouKnow']);
     //HashTags
     Route::get('/{hashtag}/posts',[HashTagsController::class,'posts']);
+    //reports
+    Route::post('/users/{user}/report',[UserController::class,'report']);
+    Route::post('/posts/{post}/report',[PostController::class,'report']);
 });
