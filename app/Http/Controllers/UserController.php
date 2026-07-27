@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Events\UserFollowEvent;
+use App\Http\Requests\ReportRequest;
 use App\Http\Requests\UserRequest;
+use App\Http\Resources\ReportResource;
 use App\Http\Resources\UserResource;
+use App\Models\Report;
 use App\Models\User;
 use Illuminate\Http\Request;
 use UserServices;
@@ -26,6 +29,27 @@ class UserController extends Controller
         return response()->json([
             'follow' => !empty($user['attached'])
         ],202);
+    }
+
+    public function report(ReportRequest $request , User $user){
+        //
+        if((int)$user->id === (int)$request->user()->id){
+            return response()->json([
+                'message' => 'You cannot Report yourself.'
+            ],422);
+        }
+        
+        $attributes = $request->validated();
+        $report = Report::create([
+            'reporter_id' => $request->user()->id,
+            'raison' => $attributes['raison'],
+            'reportable_type' => User::class,
+            'reportable_id' => $user->id
+        ]);
+
+        return response()->json([
+            'report' => new ReportResource($report)
+        ],201);
     }
 
     public function search(Request $request){

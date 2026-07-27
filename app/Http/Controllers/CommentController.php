@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Events\UserCommentedEvent;
 use App\Http\Requests\CommentRequest;
+use App\Http\Requests\ReportRequest;
 use App\Http\Resources\CommentResource;
+use App\Http\Resources\ReportResource;
 use App\Models\Comment;
 use App\Models\Post;
+use App\Models\Report;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -14,6 +17,27 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function report(ReportRequest $request , Comment $comment){
+        //
+        if((int)$comment->user_id === (int)$request->user()->id){
+            return response()->json([
+                'message' => 'You cannot Report your comment.'
+            ],422);
+        }
+        
+        $attributes = $request->validated();
+        $report = Report::create([
+            'reporter_id' => $request->user()->id,
+            'raison' => $attributes['raison'],
+            'reportable_type' => Comment::class,
+            'reportable_id' => $comment->id
+        ]);
+
+        return response()->json([
+            'report' => new ReportResource($report)
+        ]);
+    }
+
     public function index(Post $post)
     {
         //
