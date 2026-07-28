@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Services;
+
 use App\Events\UserMentionEvent;
 use App\Models\HashTag;
 use App\Models\Post;
