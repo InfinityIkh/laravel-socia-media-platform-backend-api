@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
-            $table->string('path');
+            $table->string('path')->default('public/profile/deafult.png');
         });
     }
 
