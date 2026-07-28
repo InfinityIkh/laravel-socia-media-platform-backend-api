@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\UserFollowEvent;
 use App\Http\Requests\ReportRequest;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\ReportResource;
@@ -10,27 +9,11 @@ use App\Http\Resources\UserResource;
 use App\Models\Report;
 use App\Models\User;
 use Illuminate\Http\Request;
-use UserServices;
+use app\Services\UserServices;
 
 class UserController extends Controller
 {
     //
-    public function follow(Request $request , User $User){
-        //
-        if((int)$User->id === (int)$request->user()->id){
-            return response()->json([
-                'message' => 'You cannot follow yourself.'
-            ],422);
-        }
-        $user = $request->user()->following()->toggle($User->id);
-        if(!empty($user["attached"])){
-            event(new UserFollowEvent($request->user(),$User));
-        }
-        return response()->json([
-            'follow' => !empty($user['attached'])
-        ],202);
-    }
-
     public function block(Request $request , User $user){
         //
         if((int)$user->id === (int)$request->user()->id){
