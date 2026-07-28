@@ -104,4 +104,12 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(User::class,'blocked_users','blocker_id','blocked_id');
     }
+
+    public function followRequests(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class,'follow_requests','receiver_id','sender_id')
+                    ->wherePivot('status', 'pending')
+                    ->withPivot('id')
+                    ->withTimestamps();
+    }
 }
