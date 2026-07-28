@@ -81,4 +81,6 @@ Route::middleware('auth:sanctum')->group(function(){
     //blocks
     Route::post('/users/{user}/block',[UserController::class,'block']);
     Route::get('/user/blocked_users',[UserController::class,'blocked_users']);
+    //follow_requests
+    Route::get('/follow-requests',[UserController::class,'follow_requests']);
 });
