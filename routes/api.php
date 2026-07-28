@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FeedController;
+use App\Http\Controllers\FollowRequestController;
 use App\Http\Controllers\HashTagsController;
 use App\Http\Controllers\LikesController;
 use App\Http\Controllers\NotificationController;
@@ -40,7 +41,6 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/users/search',[UserController::class,'search']);
     Route::get('/users/{user}/followers',[UserController::class,'followers']);
     Route::get('/users/{user}/following',[UserController::class,'following']);
-    Route::post('/users/{user}/follow',[UserController::class,'follow']);
     //Crud Operations For Post And Other Functionality
     Route::apiResource('posts',PostController::class);
     Route::get('posts/{post}/likes',[LikesController::class,'likedUsers']);
@@ -82,5 +82,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/users/{user}/block',[UserController::class,'block']);
     Route::get('/user/blocked_users',[UserController::class,'blocked_users']);
     //follow_requests
-    Route::get('/follow-requests',[UserController::class,'follow_requests']);
+    Route::post('/users/{user}/follow',[FollowRequestController::class,'follow']);
+    Route::get('/follow-requests',[FollowRequestController::class,'follow_requests']);
+    Route::put('/change-status',[FollowRequestController::class,'changeAccountStatus']);
 });
