@@ -83,6 +83,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/user/blocked_users',[UserController::class,'blocked_users']);
     //follow_requests
     Route::post('/users/{user}/follow',[FollowRequestController::class,'follow']);
-    Route::get('/follow-requests',[FollowRequestController::class,'follow_requests']);
+    Route::put('/follow-requests/{id}/accept',[FollowRequestController::class,'acceptFollowRequests']);
+    Route::put('/follow-requests/{id}/reject',[FollowRequestController::class,'rejectFollowRequests']);
+    Route::get('/follow-requests',[FollowRequestController::class,'followRequests']);
     Route::put('/change-status',[FollowRequestController::class,'changeAccountStatus']);
 });
