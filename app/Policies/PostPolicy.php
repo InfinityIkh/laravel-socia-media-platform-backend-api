@@ -21,7 +21,13 @@ class PostPolicy
      */
     public function view(User $user, Post $post): bool
     {
-        return false;
+        if($user->blockedUsers()->whereKey($post->user_id)->exists()){
+            return false;
+        }
+        if($user->blockedByUsers()->whereKey($post->user_id)->exists()){
+            return false;
+        }
+        return true;
     }
 
     /**

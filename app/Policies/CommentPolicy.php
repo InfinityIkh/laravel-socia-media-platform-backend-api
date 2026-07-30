@@ -20,7 +20,13 @@ class CommentPolicy
      */
     public function view(User $user, Comment $comment): bool
     {
-        return false;
+        if($user->blockedUsers()->whereKey($comment->user_id)->exists()){
+            return false;
+        }
+        if($user->blockedByUsers()->whereKey($comment->user_id)->exists()){
+            return false;
+        }
+        return true;
     }
 
     /**

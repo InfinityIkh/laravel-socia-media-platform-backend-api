@@ -18,9 +18,15 @@ class UserPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, User $model): bool
+    public function view(User $user, User $targetUser): bool
     {
-        return false;
+        if($user->blockedUsers()->whereKey($targetUser->id)->exists()){
+            return false;
+        }
+        if($user->blockedByUsers()->whereKey($targetUser->id)->exists()){
+            return false;
+        }
+        return true;
     }
 
     /**
