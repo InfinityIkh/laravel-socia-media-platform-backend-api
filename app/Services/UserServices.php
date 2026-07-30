@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\FollowRequestEvent;
 use App\Events\UserFollowEvent;
 use App\Models\FollowRequest;
 use App\Models\User;
@@ -25,8 +26,10 @@ class UserServices{
             'receiver_id' => $user->id],
             ['status' => 'pending']
         );
+        event(new FollowRequestEvent($user ,$currentUser));
         return $follow_request;
     }
+    
     public function insertUser(array $validatedInfo ,?UploadedFile $image):User
     {
         //
