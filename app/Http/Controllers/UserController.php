@@ -17,6 +17,7 @@ class UserController extends Controller
     public function block(Request $request , User $user){
         //
         $currentUser = $request->user();
+        $this->authorize('view',[$currentUser ,$user]);
         if($currentUser->is($user)){
             return response()->json([
                 'message' => 'You cannot block yourself.'
@@ -33,6 +34,8 @@ class UserController extends Controller
 
     public function report(ReportRequest $request , User $user){
         //
+        $currentUser = $request->user();
+        $this->authorize('view',[$currentUser ,$user]);
         if((int)$user->id === (int)$request->user()->id){
             return response()->json([
                 'message' => 'You cannot Report yourself.'
@@ -55,7 +58,7 @@ class UserController extends Controller
     public function search(Request $request){
         //
         $search = $request->input('q');
-        $users = User::withCount('followers')->orderBy('followers_count' , 'desc')
+        $users = User::visible($request->user())->withCount('followers')->orderBy('followers_count' , 'desc')
                                             ->where('name' , 'like' , "%$search%")
                                             ->take(10)
                                             ->get();
@@ -68,7 +71,7 @@ class UserController extends Controller
         //
         $user = $request->user();
         $followingIds = $user->following->pluck('id');
-        $suggestions = User::whereHas('following' , function($q) use($followingIds) {
+        $suggestions = User::visible($request->user())->whereHas('following' , function($q) use($followingIds) {
             $q->whereIn('users_followers_following.follower_id' , $followingIds);
         })->where('id' ,'!=', $user->id)
           ->whereNotIn('id' , $followingIds)
@@ -119,10 +122,10 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
-        $users = User::all();
+        $users = User::visible($request->user())->get();
 
         return response()->json([
             'users' => UserResource::collection($users)
@@ -148,10 +151,10 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request ,User $user)
     {
         //
-        $user = User::findOrFail($id);
+        $this->authorize('view',[$request->user() ,$user]);
 
         return response()->json([
             'user' => new UserResource($user)
