@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -53,6 +54,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function scopeVisible(Builder $query ,User $user){
+        $blockedUsers = $user->blockedUsers()->pluck('users.id');
+        $blockedMe = $user->blockedByUsers()->pluck('users.id');
+        $usersIds = $blockedUsers->merge($blockedMe)->unique();
+        return $query->whereNotIn('id',$usersIds);
     }
 
     public function posts():HasMany 
