@@ -7,6 +7,7 @@ use App\Http\Resources\FollowRequestResource;
 use App\Http\Resources\UserResource;
 use App\Models\FollowRequest;
 use App\Models\User;
+use App\Notifications\FollowNotification;
 use App\Services\UserServices;
 use Illuminate\Http\Request;
 
@@ -16,6 +17,7 @@ class FollowRequestController extends Controller
     public function follow (UserServices $userServices , Request $request , User $user){
         //
         $currentUser = $request->user();
+        $this->authorize('view',[$currentUser ,$user]);
         if($currentUser->is($user)){
             return response()->json([
                 'message' => 'You cannot follow yourself.'
@@ -58,6 +60,7 @@ class FollowRequestController extends Controller
         $this->authorize('update',[$currentUser ,$follow_request]);
         $currentUser->followers()->syncWithoutDetaching($follow_request->sender_id);
         $follow_request->delete();
+        event(new UserFollowEvent($follow_request->sender , $currentUser));
         return response()->json([
             'message' => "{$follow_request->sender->name} started following you"
         ]);

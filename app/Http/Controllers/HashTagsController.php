@@ -10,11 +10,13 @@ use Illuminate\Http\Request;
 class HashTagsController extends Controller
 {
     //
-    public function posts(string $hashtag){
+    public function posts(Request $request ,string $hashtag){
         //
+        $currentUser = $request->user();
         $posts = Post::whereHas('hashtags',function($q) use($hashtag){
             $q->where('hashtag',$hashtag);
-        })->withCount('likes')
+        })->visible($currentUser)
+          ->withCount('likes')
           ->orderBy('likes_count','desc')
           ->get();
           

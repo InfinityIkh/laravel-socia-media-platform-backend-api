@@ -11,6 +11,7 @@ class LikesController extends Controller
 {
     public function like(Request $request , Post $post){
         //
+        $this->authorize('view',$post);
         $like = $post->likes()->toggle($request->user()->id);
         if(!empty($like["attached"])){
             event(new UserLikedEvent($request->user() , $post));

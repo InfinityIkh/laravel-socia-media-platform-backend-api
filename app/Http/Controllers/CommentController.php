@@ -19,6 +19,7 @@ class CommentController extends Controller
      */
     public function report(ReportRequest $request , Comment $comment){
         //
+        $this->authorize('view',$comment);
         if((int)$comment->user_id === (int)$request->user()->id){
             return response()->json([
                 'message' => 'You cannot Report your comment.'
@@ -38,11 +39,11 @@ class CommentController extends Controller
         ]);
     }
 
-    public function index(Post $post)
+    public function index(Request $request ,Post $post)
     {
         //
-        $comments = $post->comments()->with('user')->get();
-
+        $this->authorize('view',[$request->user() ,$post]);
+        $comments = $post->comments()->visible($request->user())->with('user')->get();
         return response()->json([
             'comments' => CommentResource::collection($comments)
         ],200);
@@ -70,14 +71,15 @@ class CommentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Comment $comment)
-    {
-        //
-        $cmnt = $comment->load('user');
-        return response()->json([
-            'comment' => new CommentResource($cmnt)
-        ],200);
-    }
+    //public function show(Request $request , Post $post ,Comment $comment)
+    //{
+    //    //
+    //    $this->authorize('view',[$request->user() ,$post]);
+    //    $cmnt = $comment->load('user');
+    //    return response()->json([
+    //        'comment' => new CommentResource($cmnt)
+    //    ],200);
+    //}
 
     /**
      * Update the specified resource in storage.

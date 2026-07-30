@@ -6,11 +6,10 @@ use App\Http\Requests\PostRequest;
 use App\Http\Requests\ReportRequest;
 use App\Http\Resources\PostResource;
 use App\Http\Resources\ReportResource;
-use App\Models\HashTag;
 use App\Models\Post;
 use App\Models\Report;
+use App\Services\PostService as ServicesPostService;
 use Illuminate\Http\Request;
-use PostService;
 
 class PostController extends Controller
 {
@@ -19,6 +18,8 @@ class PostController extends Controller
      */
     public function report(ReportRequest $request , Post $post){
         //
+        $this->authorize('view',$post);
+        
         if((int)$post->user_id === (int)$request->user()->id){
             return response()->json([
                 'message' => 'You cannot Report your Post.'
@@ -38,9 +39,9 @@ class PostController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $posts = Post::all();
+        $posts = Post::visible($request->user())->get();
         return response()->json([
             'posts' => PostResource::collection($posts)
         ],200);
@@ -49,7 +50,7 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PostService $postService , PostRequest $request)
+    public function store(ServicesPostService $postService , PostRequest $request)
     {
         //
         $validated = $request->validated();
@@ -68,7 +69,8 @@ class PostController extends Controller
      */
     public function show(Request $request , Post $post)
     {
-        $post = $post->load('user');
+        $this->authorize('view',$post);
+        $post = $post->load('user','views');
         $post->views()->createOrFirst([
             'post_id' => $post->id,
             'user_id' => $request->user()->id
@@ -81,7 +83,7 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(PostService $postService , PostRequest $request, Post $post)
+    public function update(ServicesPostService $postService , PostRequest $request, Post $post)
     {
         //
         $validated = $request->validated();

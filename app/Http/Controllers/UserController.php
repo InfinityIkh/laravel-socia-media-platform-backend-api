@@ -16,16 +16,19 @@ class UserController extends Controller
     //
     public function block(Request $request , User $user){
         //
-        if((int)$user->id === (int)$request->user()->id){
+        $currentUser = $request->user();
+        if($currentUser->is($user)){
             return response()->json([
                 'message' => 'You cannot block yourself.'
             ],422);
         }
-        $blockedUser = $request->user()->blockedUsers()->toggle($user->id);
+        $blockedUser = $currentUser->blockedUsers()->toggle($user->id);
+        $currentUser->following()->detach($user->id);
+        $currentUser->followers()->detach($user->id);
 
         return response()->json([
             'blocked' => !empty($blockedUser['attached'])
-        ],202);
+        ],200);
     }
 
     public function report(ReportRequest $request , User $user){

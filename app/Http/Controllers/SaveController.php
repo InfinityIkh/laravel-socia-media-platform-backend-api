@@ -11,10 +11,12 @@ class SaveController extends Controller
     //
     public function save(Request $request , Post $post){
         //
+        $this->authorize('view',$post);
         $save = $post->saves()->toggle($request->user()->id);
+        $message = !empty($save['attached']) ? 'Post saved successfully.' : 'Post removed from saved posts.' ;
 
         return response()->json([
-            'save' => !empty($save['attached'])
+            'message' => $message
         ],200);
     }
 
