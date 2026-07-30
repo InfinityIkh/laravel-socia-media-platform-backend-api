@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
 
 class Post extends Model
 {
@@ -20,6 +21,13 @@ class Post extends Model
         'views_count'
     ];
 
+    public function scopeVisible(Builder $query ,User $user){
+        $blockedUsers = $user->blockedUsers()->pluck('users.id');
+        $blockedMe = $user->blockedByUsers()->pluck('users.id');
+        $usersIds = $blockedUsers->merge($blockedMe)->unique();
+        return $query->whereNotIn('user_id',$usersIds);
+    }
+    
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
