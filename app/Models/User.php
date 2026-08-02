@@ -125,4 +125,9 @@ class User extends Authenticatable
                     ->withPivot('id')
                     ->withTimestamps();
     }
+
+    public function stories(): HasMany
+    {
+        return $this->hasMany(Story::class);
+    }
 }
