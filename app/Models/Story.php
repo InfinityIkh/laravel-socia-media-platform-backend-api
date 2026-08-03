@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Story extends Model
 {
     //
+    protected $table = 'stories';
     protected $guarded = [];
 
     public function user(): BelongsTo
