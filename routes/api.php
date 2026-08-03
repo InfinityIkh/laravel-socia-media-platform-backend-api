@@ -11,6 +11,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\RepostController;
 use App\Http\Controllers\SaveController;
+use App\Http\Controllers\StoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
@@ -87,4 +88,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::put('/follow-requests/{id}/reject',[FollowRequestController::class,'rejectFollowRequests']);
     Route::get('/follow-requests',[FollowRequestController::class,'followRequests']);
     Route::put('/change-status',[FollowRequestController::class,'changeAccountStatus']);
+    //story
+    Route::post('user/stories',[StoryController::class,'uploadStory']);
+    Route::delete('user/stories/{story}',[StoryController::class,'removeStory']);
 });
