@@ -26,14 +26,23 @@ class StoryPolicy
 
     public function poepleCanView(User $user, Story $story): bool
     {
-        if($user->blockedUsers()->whereKey($story->user_id)->exists()){
+        $owner = $story->user;
+
+        if($owner->id === $user->id){
+            return true;
+        }
+        if($user->blockedUsers()->whereKey($owner->id)->exists()){
             return false;
         }
-        if($user->blockedByUsers()->whereKey($story->user_id)->exists()){
+        if($user->blockedByUsers()->whereKey($owner->id)->exists()){
+            return false;
+        }
+        if($owner->is_private && !$user->following()->whereKey($owner->id)->exists()){
             return false;
         }
         return true;
     }
+    
 
     /**
      * Determine whether the user can create models.
@@ -48,7 +57,7 @@ class StoryPolicy
      */
     public function update(User $user, Story $story): bool
     {
-        return false;
+        return $user->id === $story->user_id;
     }
 
     /**
