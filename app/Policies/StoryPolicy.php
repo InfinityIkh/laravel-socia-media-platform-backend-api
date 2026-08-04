@@ -21,7 +21,18 @@ class StoryPolicy
      */
     public function view(User $user, Story $story): bool
     {
-        return false;
+        return $user->id === $story->user_id;
+    }
+
+    public function poepleCanView(User $user, Story $story): bool
+    {
+        if($user->blockedUsers()->whereKey($story->user_id)->exists()){
+            return false;
+        }
+        if($user->blockedByUsers()->whereKey($story->user_id)->exists()){
+            return false;
+        }
+        return true;
     }
 
     /**
