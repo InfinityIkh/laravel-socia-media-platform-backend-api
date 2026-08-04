@@ -7,6 +7,7 @@ use App\Http\Requests\ReportRequest;
 use App\Http\Resources\PostResource;
 use App\Http\Resources\ReportResource;
 use App\Models\Post;
+use App\Models\PostView;
 use App\Models\Report;
 use App\Services\PostService as ServicesPostService;
 use Illuminate\Http\Request;
@@ -69,12 +70,15 @@ class PostController extends Controller
      */
     public function show(Request $request , Post $post)
     {
+        //
         $this->authorize('view',$post);
+        
         $post = $post->load('user','views');
-        $post->views()->createOrFirst([
+        PostView::firstOrCreate([
             'post_id' => $post->id,
             'user_id' => $request->user()->id
         ]);
+
         return response()->json([
             'post' => new PostResource($post),
         ],200);
