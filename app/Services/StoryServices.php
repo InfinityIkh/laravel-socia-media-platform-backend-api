@@ -5,10 +5,23 @@ namespace App\Services;
 use App\Models\Story;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class StoryServices{
     //
-    public function uploadStory(User $user , ?UploadedFile $file):Story
+    public function updateStory(Story $story ,array $validated , ?UploadedFile $file): Story
+    {
+        //
+        if($file){
+            Storage::disk('public')->delete($story->media_path);
+            $validated['media_path'] = $file->store('stories','public');
+            $validated['media_type'] = str_starts_with($file->getMimeType(),'image/') ? 'image' : 'video';
+        }
+        $story->update($validated);
+
+        return $story;
+    }
+    public function uploadStory(User $user , UploadedFile $file): Story
     {
         //
         $media_path = null;
