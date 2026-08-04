@@ -21,9 +21,10 @@ class UserResource extends JsonResource
             'image' => $this->image ? asset('storage/' . $this->image) : null ,
             'account_status' => $this->is_private === 'true' ? 'private':'public',
             'role' => $this->role,
-            'created_at' => $this->created_at->toDateTimeString(),
             'followers' => $this->followers->count(),
-            'following' => $this->following->count()
+            'following' => $this->following->count(),
+            'stories' => $this->stories(),
+            'created_at' => $this->created_at->toDateTimeString(),
         ];
     }
 }
