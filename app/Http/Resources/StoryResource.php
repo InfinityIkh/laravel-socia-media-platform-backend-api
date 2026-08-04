@@ -18,6 +18,7 @@ class StoryResource extends JsonResource
             'id' => $this->id,
             'media_path' => $this->media_path,
             'media_type' => $this->media_type,
+            'views' => $this->users()->count(),
             'expires_at' => $this->expires_at,
             'author' => $this->user()
         ];
