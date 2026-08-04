@@ -89,6 +89,6 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/follow-requests',[FollowRequestController::class,'followRequests']);
     Route::put('/change-status',[FollowRequestController::class,'changeAccountStatus']);
     //story
-    Route::post('user/stories',[StoryController::class,'uploadStory']);
-    Route::delete('user/stories/{story}',[StoryController::class,'removeStory']);
+    Route::apiResource('stories',StoryController::class);
+    Route::get('stories/{story}/viewers',[StoryController::class,'storyViewers']);
 });
