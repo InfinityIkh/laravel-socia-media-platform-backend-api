@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\FollowRequestEvent;
+use App\Jobs\SendFollowRequestNotificationJob;
 use App\Notifications\FollowRequestNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -25,8 +26,6 @@ class FollowRequestListener
     public function handle(FollowRequestEvent $event): void
     {
         //
-        $event->receiver->notify(
-            new FollowRequestNotification($event->sender)
-        );
+        SendFollowRequestNotificationJob::dispatch();
     }
 }

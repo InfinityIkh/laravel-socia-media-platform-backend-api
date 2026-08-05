@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\UserCommentedEvent;
+use App\Jobs\SendCommentNotificationJob;
 use App\Notifications\CommentNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -23,10 +24,6 @@ class CommentPostListener
     public function handle(UserCommentedEvent $event): void
     {
         //
-        if($event->user->id === $event->post->user_id)return ;
-        
-        $event->post->user->notify(
-            new CommentNotification($event->user , $event->post)
-        );
+        SendCommentNotificationJob::dispatch();
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\UserFollowEvent;
+use App\Jobs\SendFollowNotificationJob;
 use App\Notifications\FollowNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -23,8 +24,6 @@ class FollowingUserListener
     public function handle(UserFollowEvent $event): void
     {
         //
-        $event->followed->notify(
-            new FollowNotification($event->follower)
-        );
+        SendFollowNotificationJob::dispatch($event->follower ,$event->followed);
     }
 }
