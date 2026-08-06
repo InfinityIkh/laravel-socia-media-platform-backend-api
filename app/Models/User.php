@@ -130,4 +130,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Story::class);
     }
+
+    public function viewedPosts(): BelongsToMany
+    {
+        return $this->belongsToMany(Post::class, 'posts_views', 'user_id', 'post_id');
+    }
 }

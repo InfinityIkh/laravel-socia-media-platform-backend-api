@@ -18,7 +18,6 @@ class Post extends Model
         'title',
         'body',
         'user_id',
-        'views_count'
     ];
 
     public function scopeVisible(Builder $query ,User $user){
@@ -53,9 +52,9 @@ class Post extends Model
         return $this->belongsToMany(User::class,'saves')->withTimestamps();
     }
 
-    public function views(): HasMany
+    public function views(): BelongsToMany
     {
-        return $this->hasMany(PostView::class);
+        return $this->belongsToMany(User::class,'posts_views','post_id','user_id');
     }
 
     public function images(): HasMany
