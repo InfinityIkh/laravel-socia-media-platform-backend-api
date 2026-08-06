@@ -4,28 +4,40 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
 use App\Models\Post;
+use App\Models\User;
+use App\Services\PostService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class SaveController extends Controller
 {
     //
-    public function save(Request $request , Post $post){
+    public function save(PostService $postService ,Request $request , Post $post){
         //
         $this->authorize('view',$post);
-        $save = $post->saves()->toggle($request->user()->id);
-        $message = !empty($save['attached']) ? 'Post saved successfully.' : 'Post removed from saved posts.' ;
+        $currentUser = $request->user();
+
+       $save = $postService->savePost($currentUser ,$post);
 
         return response()->json([
-            'message' => $message
+            'message' => $save ? 'Post saved successfully.' : 'Post removed from saved posts.'
         ],200);
     }
 
     public function saves(Post $post){
         //
-        $postSaves = $post->load('saves');
+        $usersDb = $post->saves()->get();
+
+        $key = 'post:'.$post->id.':saves';
+        $usersIds = Redis::sMembers($key);
+        $redisUsers = User::whereIn('id' ,$usersIds)->get();
+
+        $allUsers = $usersDb->merge($redisUsers)
+                            ->unique('id')
+                            ->values();
 
         return response()->json([
-            'users_saved_post' => UserResource::collection($postSaves->saves)
+            'users_saved_post' => UserResource::collection($allUsers)
         ],200);
     }
 }
