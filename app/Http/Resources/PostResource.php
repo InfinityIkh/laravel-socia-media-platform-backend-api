@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Redis;
 
 class PostResource extends JsonResource
 {
@@ -19,11 +20,11 @@ class PostResource extends JsonResource
             'title' => $this->title,
             'body' => $this->body,
             'images' => $this->images(),
-            'views' => $this->views()->count(),
-            'likes' => $this->likes()->count(),
+            'views' => $this->views()->count() + Redis::scard('post:'.$this->id.':viewers'),
+            'likes' => $this->likes()->count() + Redis::scard('post:'.$this->id.':likes'),
             'comments' => $this->comments()->count(),
-            'reposts' => $this->reposts()->count(),
-            'saves' => $this->saves()->count(),
+            'reposts' => $this->reposts()->count() + Redis::scard('post:'.$this->id.':reposts'),
+            'saves' => $this->saves()->count() + Redis::scard('post:'.$this->id.':saves'),
             'created_at' => $this->created_at->toDateTimeString(),
             'author' => new UserResource($this->user)
         ];
