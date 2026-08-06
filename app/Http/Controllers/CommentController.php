@@ -7,6 +7,7 @@ use App\Http\Requests\CommentRequest;
 use App\Http\Requests\ReportRequest;
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\ReportResource;
+use App\Jobs\SendCommentNotificationJob;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\Report;
@@ -61,7 +62,7 @@ class CommentController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        event(new UserCommentedEvent($request->user() , $post));
+        SendCommentNotificationJob::dispatch($request->user() ,$post);
 
         return response()->json([
             'comment' => $comment
