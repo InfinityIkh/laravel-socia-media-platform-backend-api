@@ -6,11 +6,13 @@ use App\Http\Requests\PostRequest;
 use App\Http\Requests\ReportRequest;
 use App\Http\Resources\PostResource;
 use App\Http\Resources\ReportResource;
+use App\Jobs\CountPostViewsJob;
 use App\Models\Post;
 use App\Models\PostView;
 use App\Models\Report;
 use App\Services\PostService as ServicesPostService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class PostController extends Controller
 {
@@ -72,12 +74,15 @@ class PostController extends Controller
     {
         //
         $this->authorize('view',$post);
-        
-        $post = $post->load('user','views');
-        PostView::firstOrCreate([
-            'post_id' => $post->id,
-            'user_id' => $request->user()->id
-        ]);
+
+        Redis::sAdd('post:'.$post->id.':viewers',$request->user()->id);
+
+        $post = $post->load('user',
+                            'views',
+                            'saves',
+                            'likes',
+                            'reposts',
+                            'comments');
 
         return response()->json([
             'post' => new PostResource($post),
