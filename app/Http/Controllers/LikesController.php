@@ -2,32 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\UserLikedEvent;
 use App\Http\Resources\UserResource;
 use App\Models\Post;
+use App\Models\User;
+use App\Services\PostService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class LikesController extends Controller
 {
-    public function like(Request $request , Post $post){
+    public function like(PostService $postService ,Request $request ,Post $post){
         //
+        $currentUser = $request->user();
         $this->authorize('view',$post);
-        $like = $post->likes()->toggle($request->user()->id);
-        if(!empty($like["attached"])){
-            event(new UserLikedEvent($request->user() , $post));
-        }
+
+        $like = $postService->likePost($currentUser ,$post);
 
         return response()->json([
-            'liked' => !empty($like["attached"])
+            'liked' => (bool) $like,
+            'message' => $like ? 'post liked successfully' : 'post unliked successfully'
         ],200);
     }
 
     public function likedUsers(Post $post){
         //
-        $likedUsers = $post->load('likes');
+        $dbUsers = $post->likes()->get();
+
+        $key = 'post:'.$post->id.':likes';
+        $usersIds = Redis::sMembers($key);
+        $redisUsers = User::whereIn('id' ,$usersIds)->get();
+
+        $allUsers = $dbUsers->merge($redisUsers)
+                            ->unique('id')
+                            ->values();
 
         return response()->json([
-            'liked_users' => UserResource::collection($likedUsers->likes)
+            'liked_users' => UserResource::collection($allUsers)
         ],200);
     }
 }
