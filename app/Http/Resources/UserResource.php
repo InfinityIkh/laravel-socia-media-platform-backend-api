@@ -18,7 +18,7 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'image' => $this->image ? asset('storage/' . $this->image) : null ,
+            'image' => $this->path ?? asset('storage/' . $this->image) ,
             'account_status' => $this->is_private === true ? 'private':'public',
             'role' => $this->role,
             'followers' => $this->followers->count(),
