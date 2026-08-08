@@ -2,9 +2,10 @@
 
 namespace App\Services;
 
-use App\Events\UserLikedEvent;
-use App\Events\UserMentionEvent;
+use App\Jobs\ProcessImageJob;
+use App\Jobs\ProcessPostImagesJob;
 use App\Jobs\SendLikeNotificationJob;
+use App\Jobs\SendMentionNotificationJob;
 use App\Jobs\SendRepostNotificationJob;
 use App\Models\HashTag;
 use App\Models\Post;
@@ -47,7 +48,6 @@ class PostService{
         if(!$images){
             unset($validatedInfo['images']);
         }else{
-            $this->deleteImages($post);
             $this->uploadImages($images , $post);
         }
 
@@ -84,25 +84,16 @@ class PostService{
 
         $mentions = array_merge($mentionNamesBody , $mentionNamesTitile);
         foreach($mentions as $targetedUser){
-            event(new UserMentionEvent($user , $post , $targetedUser));
+            SendMentionNotificationJob::dispatch($user , $post , $targetedUser);
         }
     }
 
     public function uploadImages(array $images , Post $post){
         //
         foreach($images as $image){
-            $imagePath = $image->store('photos','public');
-            $post->images()->create([
-                'image_path' => $imagePath
-            ]);
+            $path = $image->store('images/original','public');
+            ProcessPostImagesJob::dispatch($post ,$path);
         }
-    }
-
-    public function deleteImages(Post $post){
-        foreach($post->images as $image){
-            Storage::disk('public')->delete($image->image_path);
-        }
-        $post->images()->delete();
     }
 
     public function likePost(User $currentUser ,Post $post){
