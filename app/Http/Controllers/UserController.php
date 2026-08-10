@@ -9,7 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Report;
 use App\Models\User;
 use Illuminate\Http\Request;
-use app\Services\UserServices;
+use App\Services\UserServices;
 
 class UserController extends Controller
 {

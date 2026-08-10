@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserResource;
 use App\Models\Post;
 use App\Models\User;
-use App\Services\PostService;
+use App\Services\PostServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 
 class LikesController extends Controller
 {
-    public function like(PostService $postService ,Request $request ,Post $post){
+    public function like(PostServices $postService ,Request $request ,Post $post){
         //
         $currentUser = $request->user();
         $this->authorize('view',$post);

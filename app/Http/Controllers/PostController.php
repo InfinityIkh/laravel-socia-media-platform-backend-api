@@ -10,7 +10,7 @@ use App\Jobs\CountPostViewsJob;
 use App\Models\Post;
 use App\Models\PostView;
 use App\Models\Report;
-use App\Services\PostService as ServicesPostService;
+use App\Services\PostServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 
@@ -53,7 +53,7 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ServicesPostService $postService , PostRequest $request)
+    public function store(PostServices $postService , PostRequest $request)
     {
         //
         $validated = $request->validated();
@@ -92,7 +92,7 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(ServicesPostService $postService , PostRequest $request, Post $post)
+    public function update(PostServices $postService , PostRequest $request, Post $post)
     {
         //
         $validated = $request->validated();
