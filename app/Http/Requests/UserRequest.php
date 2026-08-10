@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
 {
@@ -22,17 +23,17 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
-         $userId = $this->route('user')?->id ?? $this->route('user') ?? $this->route('id');
+        $userId = $this->route('user')?->id;
         return [
             'name' => ['required','min:5','max:255'],
-            'email' => ['required','email','unique:users,email,'.$userId],
+            'email' => ['required','email', Rule::unique('users', 'email')->ignore($userId),],
             'role' => ['nullable', 'string', 'in:user,admin'],
-            'image' => ['nullable','image','mimes:jpeg,jpg,png','max:2048'],
+            'image' => ['nullable','image','mimes:jpeg,jpg,png,webp','max:2048'],
             'password' => [
                 $this->isMethod('post') ? 'required' : 'nullable' ,
                 'min:8',
                 'max:255'
-                          ],
+            ],
         ];
     }
 }
