@@ -40,7 +40,7 @@ class UserServices{
         ]);
 
         if($image){
-            $imagePath = $image->store('images/original','public');
+            $imagePath = $image->store('images/profiles/original','public');
             ProcessUserImagesJob::dispatch($user ,$imagePath);
         }
 
@@ -56,7 +56,7 @@ class UserServices{
             $validatedInfo['password'] = Hash::make($validatedInfo['password']);
         }
         if($image){
-            $path = $image->store('images/original', 'public');
+            $path = $image->store('images/profiles/original', 'public');
             ProcessUserImagesJob::dispatch($user ,$path);
         }
         $user->update($validatedInfo);

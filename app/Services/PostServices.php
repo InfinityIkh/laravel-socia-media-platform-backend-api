@@ -13,7 +13,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 
-class PostService{
+class PostServices{
     public function insertPost(array $validatedInfo , User $user , ?array $images):Post
     {
         //
@@ -91,7 +91,7 @@ class PostService{
     public function uploadImages(array $images , Post $post){
         //
         foreach($images as $image){
-            $path = $image->store('images/original','public');
+            $path = $image->store('images/posts/original','public');
             ProcessPostImagesJob::dispatch($post ,$path);
         }
     }
