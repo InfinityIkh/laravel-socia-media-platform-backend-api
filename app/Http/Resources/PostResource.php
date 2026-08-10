@@ -19,12 +19,13 @@ class PostResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'body' => $this->body,
-            'images' => $this->images(),
+            'images' => $this->images()->get(),
             'views' => $this->views()->count() + Redis::scard('post:'.$this->id.':viewers'),
             'likes' => $this->likes()->count() + Redis::scard('post:'.$this->id.':likes'),
             'comments' => $this->comments()->count(),
             'reposts' => $this->reposts()->count() + Redis::scard('post:'.$this->id.':reposts'),
             'saves' => $this->saves()->count() + Redis::scard('post:'.$this->id.':saves'),
+            'hashtags' => $this->hashtags()->pluck('hashtag'),
             'created_at' => $this->created_at->toDateTimeString(),
             'author' => new UserResource($this->user)
         ];
