@@ -30,11 +30,11 @@ Route::middleware('auth:sanctum')->group(function(){
     //
     Route::post('/logout',[AuthController::class,'logout']);
     //Crud Operations For User
-    Route::get('/users/{id}',[UserController::class,'show']);
-    Route::put('/users/{id}',[UserController::class,'update']);
+    Route::get('/users/{user}',[UserController::class,'show']);
+    Route::put('/users/{user}',[UserController::class,'update']);
     //Crud Operations For User only Admin Can Do
     Route::middleware('admin')->group(function(){
-        Route::delete('/users/{id}',[UserController::class,'destroy']);
+        Route::delete('/users/{user}',[UserController::class,'destroy']);
         Route::get('/users',[UserController::class,'index']);
         Route::post('/users',[UserController::class,'store']);
     });
