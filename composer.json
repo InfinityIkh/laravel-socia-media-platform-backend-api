@@ -9,8 +9,12 @@
         "php": "^8.2",
         "intervention/image-laravel": "^1.5",
         "laravel/framework": "^12.0",
+        "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.3",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "pbmedia/laravel-ffmpeg": "^8.9",
+        "php-ffmpeg/php-ffmpeg": "^1.4",
+        "predis/predis": "^3.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
