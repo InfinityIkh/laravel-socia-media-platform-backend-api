@@ -25,7 +25,9 @@ Route::post('/login',[AuthController::class,'login']);
 Route::middleware('auth:sanctum')->group(function(){
     //
     Route::get('/profile',function (Request $request){
-        return new UserResource($request->user());
+        return response()->json([
+            'user' => new UserResource($request->user())
+        ],200);
     });
     //
     Route::post('/logout',[AuthController::class,'logout']);
@@ -89,6 +91,9 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/follow-requests',[FollowRequestController::class,'followRequests']);
     Route::put('/change-status',[FollowRequestController::class,'changeAccountStatus']);
     //story
-    Route::apiResource('stories',StoryController::class);
+    Route::get('/stories/me',[StoryController::class ,'userStories']);
+    Route::post('stories',[StoryController::class,'store']);
+    Route::delete('stories/{story}',[StoryController::class,'destroy']);
+    Route::get('stories/{story}',[StoryController::class,'show']);
     Route::get('stories/{story}/viewers',[StoryController::class,'storyViewers']);
 });
