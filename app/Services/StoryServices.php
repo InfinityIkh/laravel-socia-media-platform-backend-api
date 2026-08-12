@@ -26,8 +26,8 @@ class StoryServices{
         //
         $media_path = null;
         $media_type = null;
-        $media_path = $file->store('stories','public');
-        $media_type = str_starts_with($file->getMimeType() ,'/image') ? 'image' : 'video';
+        $media_path = $file->store('images/stories','public');
+        $media_type = str_starts_with($file->getMimeType() ,'image/') ? 'image' : 'video';
 
         $story = Story::create([
             'user_id' => $user->id,
