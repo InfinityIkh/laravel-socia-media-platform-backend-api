@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoryRequest;
 use App\Http\Resources\StoryResource;
 use App\Models\Story;
+use App\Models\User;
 use App\Services\StoryServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,19 @@ use Illuminate\Support\Facades\Storage;
 class StoryController extends Controller
 {
     //
+    public function userStories(Request $request){
+        //
+        $stories = $request->user()
+                           ->stories()
+                           ->with('user')
+                           ->latest()
+                           ->get();
+
+        return response()->json([
+            'stories' => StoryResource::collection($stories),
+        ]);
+    }
+
     public function storyViewers(Story $story){
         //
         $this->authorize('view',$story);
@@ -25,7 +39,7 @@ class StoryController extends Controller
     public function index(Request $request){
         //
         $currentUser = $request->user();
-        $stories = Story::with('user','users')->visible($currentUser)->get();
+        $stories = Story::with('user','users')->get();
 
         return response()->json([
             'stories' => StoryResource::collection($stories)
