@@ -11,7 +11,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class FollowRequestEvent
+class FollowRequestEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -31,7 +31,26 @@ class FollowRequestEvent
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new PrivateChannel('sender.'.$this->sender->id.'.follow request receiver.'.$this->receiver->id),
         ];
+    }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'sender' => [
+                'id' => $this->sender->id,
+                'name' => $this->sender->name
+            ],
+            'receiver' => [
+                'id' => $this->receiver->id,
+                'name' => $this->receiver->name
+            ]
+        ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'user.followRequest';
     }
 }

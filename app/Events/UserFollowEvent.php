@@ -10,8 +10,9 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Override;
 
-class UserFollowEvent
+class UserFollowEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -31,7 +32,26 @@ class UserFollowEvent
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new PrivateChannel('follower.'.$this->follower->id.'.followed.'.$this->followed->id),
         ];
+    }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'follower' => [
+                'id' => $this->follower->id,
+                'name' => $this->follower->name 
+            ],
+            'followed' => [
+                'id' => $this->followed->id,
+                'name' => $this->followed->name 
+            ]
+        ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'user.follow';
     }
 }

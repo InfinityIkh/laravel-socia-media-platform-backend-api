@@ -6,13 +6,12 @@ use App\Models\Post;
 use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class UserLikedEvent
+class UserLikedEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -32,7 +31,26 @@ class UserLikedEvent
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new Channel('user.'.$this->post->user_id)
         ];
     }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'user' => [
+                'id' => $this->user->id,
+                'name' => $this->user->name
+            ],
+            'post' => [
+                'id' => $this->post->id
+            ]
+        ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'post.liked';
+    }
+    
 }
