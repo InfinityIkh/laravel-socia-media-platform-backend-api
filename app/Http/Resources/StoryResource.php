@@ -20,7 +20,7 @@ class StoryResource extends JsonResource
             'media_type' => $this->media_type,
             'views' => $this->users()->count(),
             'expires_at' => $this->expires_at,
-            'author' => $this->user()
+            'author' => $this->user()->get()
         ];
     }
 }
