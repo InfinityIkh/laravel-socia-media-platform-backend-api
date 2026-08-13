@@ -31,7 +31,7 @@ class UserLikedEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('user.'.$this->post->user_id)
+            new privateChannel('user.'.$this->post->user_id)
         ];
     }
 
