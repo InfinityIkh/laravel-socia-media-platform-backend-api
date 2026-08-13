@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Conversation;
 use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -11,4 +12,9 @@ Broadcast::channel('follower.{followerId}.followed.{followedId}', function (User
 });
 Broadcast::channel('sender.{senderId}.follow request receiver.{receiverId}', function (User $user ,int $senderId ,int $receiverId) {
     return (int) $user->id === (int) $receiverId;
+});
+Broadcast::channel('conversations.{conversation}' ,function(User $user, Conversation $conversation){
+    return $conversation->users()
+        ->where('users.id', $user->id)
+        ->exists();
 });
