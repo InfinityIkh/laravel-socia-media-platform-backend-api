@@ -135,4 +135,14 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Post::class, 'posts_views', 'user_id', 'post_id');
     }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Messages::class);
+    }
+
+    public function conversations(): BelongsToMany
+    {
+        return $this->belongsToMany(Conversation::class ,'');
+    }
 }
