@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\ProcessvideoJob;
 use App\Models\Story;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -26,8 +27,11 @@ class StoryServices{
         //
         $media_path = null;
         $media_type = null;
-        $media_path = $file->store('images/stories','public');
         $media_type = str_starts_with($file->getMimeType() ,'image/') ? 'image' : 'video';
+        $media_path = match($media_type){
+            'image' => $file->store('images/stories/images/original','public'),
+            'vedio' => $file->store('images/stories/videos/original','public')
+        };
 
         $story = Story::create([
             'user_id' => $user->id,
@@ -35,6 +39,8 @@ class StoryServices{
             'media_type' => $media_type,
             'expires_at' => now()->addDay()
         ]);
+
+        $story->media_type === 'image' ? '' : ProcessvideoJob::dispatch($story ,$media_path);
 
         return $story;
     }
