@@ -24,21 +24,20 @@ class ProcessPostImagesJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(ProcessMediaService $processMediaService): void
     {
         //
         $oldImages = $this->post->images()->get();
 
-        $ProcessMediaServices = new ProcessMediaService();
-        $outputImage = $ProcessMediaServices->processImage($this->path);
+        $outputImage = $processMediaService->processImage($this->path);
 
         $this->post->images()->create([
             'image_path' => $outputImage
         ]);
 
-            foreach($oldImages as $image){
-                Storage::disk('public')->delete($image->image_path);
-            }
-            $oldImages->each->delete();
+        foreach($oldImages as $image){
+            Storage::disk('public')->delete($image->image_path);
+        }
+        $oldImages->each->delete();
     }
 }
