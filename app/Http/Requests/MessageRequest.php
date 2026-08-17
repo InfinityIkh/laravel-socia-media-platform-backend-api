@@ -24,26 +24,15 @@ class MessageRequest extends FormRequest
     public function rules(): array
     {
     return [
-        'conversation_id' => [
-            'required',
-            'integer',
-            'exists:conversations,id',
-        ],
-
-        'type' => [
-            'required',
-            Rule::in(['text', 'image', 'video', 'document']),
-        ],
 
         'body' => [
             'nullable',
             'string',
             'max:5000',
-            'required_if:type,text',
+            'required_without:media',
         ],
 
         'media' => [
-            'required_unless:type,text',
             'nullable',
             'file',
             'max:51200',
