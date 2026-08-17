@@ -16,9 +16,4 @@ class Messages extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    public function conversation(): BelongsTo
-    {
-        return $this->belongsTo(Conversation::class ,'user_conversations' ,'user_id' ,'conversation_id');
-    }
 }
