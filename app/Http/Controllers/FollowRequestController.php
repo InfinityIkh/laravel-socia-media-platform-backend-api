@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\FollowRequestEvent;
 use App\Events\UserFollowEvent;
 use App\Http\Resources\FollowRequestResource;
-use App\Http\Resources\UserResource;
 use App\Models\FollowRequest;
 use App\Models\User;
-use App\Notifications\FollowNotification;
 use App\Services\UserServices;
 use Illuminate\Http\Request;
 
@@ -32,7 +31,10 @@ class FollowRequestController extends Controller
         //Checking if the user status account is public
         if(!$user->isprivate){
             $res = $userServices->followPubliAccount($currentUser ,$user);
-            $message = !empty($res['attached']) ? "you started following $user->name" : "you You unfollowed $user->name";
+            $message = !empty($res['attached']) ? "you started following $user->name" : "you are unfollowed $user->name";
+            if(!empty($res['attached'])){
+                broadcast(new UserFollowEvent($currentUser ,$user))->toOthers();
+            }
             return response()->json([
                 'message' => $message
             ],200);
@@ -48,10 +50,11 @@ class FollowRequestController extends Controller
         }
         //sent the follow request
         $userServices->sendFollowRequest($currentUser ,$user);
+        broadcast(new FollowRequestEvent($user ,$currentUser))->toOthers();
         return response()->json([
             'message' => 'you sent follow request'
         ],201);
-        
+
     }
 
     public function acceptFollowRequests(Request $request ,FollowRequest $follow_request){
