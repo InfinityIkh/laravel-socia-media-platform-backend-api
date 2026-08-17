@@ -27,9 +27,8 @@ class ProcessvideoJob implements ShouldQueue
     {
         //
         $path = $processMediaService->processVideo($this->path ,$this->story->media_type);
-
         $this->story->update([
-            'media_type' => $path
+            'media_path' => $path
         ]);
     }
 }
