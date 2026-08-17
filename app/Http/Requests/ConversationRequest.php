@@ -26,7 +26,7 @@ class ConversationRequest extends FormRequest
             'user_ids' => [
                 'required',
                 'array',
-                'min:2',
+                'min:1',
             ],
 
             'user_ids.*' => [
