@@ -24,13 +24,12 @@ class ProcessUserImagesJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(ProcessMediaService $processMediaService): void
     {
         //
         $oldImage = $this->user->path;
 
-        $ProcessMediaServices = new ProcessMediaService();
-        $outputImage = $ProcessMediaServices->processImage($this->path);
+        $outputImage = $processMediaService->processImage($this->path);
 
         $this->user->update([
             'path' => $outputImage
