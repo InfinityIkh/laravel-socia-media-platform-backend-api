@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Jobs\ProcessImageJob;
 use App\Jobs\ProcessPostImagesJob;
 use App\Jobs\SendLikeNotificationJob;
 use App\Jobs\SendMentionNotificationJob;
@@ -11,7 +10,6 @@ use App\Models\HashTag;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Support\Facades\Redis;
-use Illuminate\Support\Facades\Storage;
 
 class PostServices{
     public function insertPost(array $validatedInfo , User $user , ?array $images):Post
@@ -91,7 +89,7 @@ class PostServices{
     public function uploadImages(array $images , Post $post){
         //
         foreach($images as $image){
-            $path = $image->store('images/posts/original','public');
+            $path = $image->store('posts/original','public');
             ProcessPostImagesJob::dispatch($post ,$path);
         }
     }
