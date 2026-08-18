@@ -13,11 +13,8 @@ class ProcessMediaService{
     public function processMessagesFiles(string $type ,string $path): string
     {
         //
-        $manager = new ImageManager(
-            new Driver()
-        );
         return match($type){
-            'image' => $this->processMessageImage($manager ,$path),
+            'image' => $this->processMessageImage($path),
             'document' => $this->processMessageDocument($path),
             'video' => $this->processMessageVideo($path)
         };
@@ -26,7 +23,7 @@ class ProcessMediaService{
     public function processMessageVideo(string $path): string
     {
         $fileName = pathinfo($path, PATHINFO_FILENAME);
-        $processedPath = "messagesMedia/video/processed/{$fileName}.mp4";
+        $processedPath = "messagesMedia/videos/processed/{$fileName}.mp4";
 
         $format = new X264('aac', 'libx264');
         $format->setKiloBitrate(2500);
@@ -42,13 +39,16 @@ class ProcessMediaService{
         return $processedPath;
     }
 
-    public function processMessageImage(ImageManager $manager ,string $path): string
+    public function processMessageImage(string $path): string
     {
         //
+        $manager = new ImageManager(
+            new Driver()
+        );
         $fullPath = Storage::disk('public')->path($path);
         $image = $manager->read($fullPath);
         $fileName = pathinfo($path ,PATHINFO_FILENAME);
-        $outputImage = 'images/messagesMedia/image/processed/'.$fileName.'.webp';
+        $outputImage = 'messagesMedia/images/processed/'.$fileName.'.webp';
         $image->scaleDown(width:600)
               ->toWebp(quality: 80)
               ->save(
@@ -61,7 +61,7 @@ class ProcessMediaService{
     {
         //
         $fileName = basename($path);
-        $outputPath = 'messagesMedia/document/processed/'.$fileName;
+        $outputPath = 'messagesMedia/documents/processed/'.$fileName;
 
         Storage::disk('public')->copy(
             $path,
@@ -76,15 +76,15 @@ class ProcessMediaService{
         $manager = new ImageManager(
             new Driver()
         );
-        
+
         $valid = explode('/',$path)[1];
         $fullPath = Storage::disk('public')->path($path);
         $image = $manager->read($fullPath);
         $fileName = pathinfo($path ,PATHINFO_FILENAME);
         if($valid === 'posts'){
-            $outputImage = 'images/posts/processed/'.$fileName.'.webp';
+            $outputImage = 'posts/processed/'.$fileName.'.webp';
         }else{
-            $outputImage = 'images/profiles/processed/'.$fileName.'.webp';
+            $outputImage = 'profiles/processed/'.$fileName.'.webp';
         }
         $image->scaleDown(width:600)
               ->toWebp(quality: 80)
@@ -96,7 +96,7 @@ class ProcessMediaService{
     public function processVideo(string $path , string $type): string
     {
         $fileName = pathinfo($path, PATHINFO_FILENAME);
-        $processedPath = 'images/'.$type.'/processed/'.$fileName.'.mp4';
+        $processedPath = 'stories/'.$type.'/processed/'.$fileName.'.mp4';
 
         $format = new X264('aac', 'libx264');
         $format->setKiloBitrate(2500);
@@ -110,5 +110,23 @@ class ProcessMediaService{
             ->save($processedPath);
 
         return $processedPath;
+    }
+
+    public function processStoryImage(string $path , string $type){
+        //
+        $manager = new ImageManager(
+            new Driver()
+        );
+
+        $fullPath = Storage::disk('public')->path($path);
+        $image = $manager->read($fullPath);
+        $fileName = pathinfo($path ,PATHINFO_FILENAME);
+        $outputImage = 'stories/'.$type.'/processed/'.$fileName.'.webp';
+        $image->scaleDown(width:600)
+              ->toWebp(quality: 80)
+              ->save(
+                Storage::disk('public')->path($outputImage)
+              );
+        return $outputImage;
     }
 }
