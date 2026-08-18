@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FollowRequestController;
 use App\Http\Controllers\HashTagsController;
 use App\Http\Controllers\LikesController;
+use App\Http\Controllers\MessagesController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReplyController;
@@ -96,4 +98,15 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::delete('stories/{story}',[StoryController::class,'destroy']);
     Route::get('stories/{story}',[StoryController::class,'show']);
     Route::get('stories/{story}/viewers',[StoryController::class,'storyViewers']);
+    //Conversations
+    Route::get('/conversations', [ConversationController::class, 'index']);
+    Route::post('/conversations', [ConversationController::class, 'store']);
+    Route::get('/conversations/{conversation}', [ConversationController::class, 'show']);
+    Route::post('/conversations/{conversation}/leave', [ConversationController::class, 'leave']);
+    Route::delete('/conversations/{conversation}', [ConversationController::class, 'destroy']);
+    //Messages
+    Route::get('/conversations/{conversation}/messages', [MessagesController::class, 'index']);
+    Route::post('/conversations/{conversation}/messages', [MessagesController::class, 'store']);
+    Route::patch('/messages/{message}/read', [MessagesController::class, 'markAsRead']);
+    Route::delete('/messages/{message}', [MessagesController::class, 'destroy']);
 });
