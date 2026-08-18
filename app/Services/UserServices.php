@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Events\FollowRequestEvent;
 use App\Events\UserFollowEvent;
 use App\Jobs\ProcessUserImagesJob;
+use App\Jobs\SendFollowRequestNotificationJob;
 use App\Models\FollowRequest;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -26,7 +27,7 @@ class UserServices{
             'receiver_id' => $user->id],
             ['status' => 'pending']
         );
-        event(new FollowRequestEvent($user ,$currentUser));
+        SendFollowRequestNotificationJob::dispatch($user ,$currentUser);
         return $follow_request;
     }
     
@@ -40,7 +41,7 @@ class UserServices{
         ]);
 
         if($image){
-            $imagePath = $image->store('images/profiles/original','public');
+            $imagePath = $image->store('profiles/original','public');
             ProcessUserImagesJob::dispatch($user ,$imagePath);
         }
 
@@ -56,7 +57,7 @@ class UserServices{
             $validatedInfo['password'] = Hash::make($validatedInfo['password']);
         }
         if($image){
-            $path = $image->store('images/profiles/original', 'public');
+            $path = $image->store('profiles/original', 'public');
             ProcessUserImagesJob::dispatch($user ,$path);
         }
         $user->update($validatedInfo);
