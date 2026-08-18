@@ -18,17 +18,19 @@ class MessagesServices{
         $path = null ;
         $type = 'text';
         if($mediaFile){
-            $path = $mediaFile->store('images/messagesMedia/'.$type.'/original' ,'public');
             $type = $this->getMediaType($mediaFile);
+            $path = $mediaFile->store('messagesMedia/'.$type.'s/original' ,'public');
         }
         $message = $conversation->messages()->create([
             'user_id' => $authUser->id,
             'body' => $requestValidate['body'] ?? null,
-            'type' => $type,
+            'type' =>  $type,
             'media_path' => $path,
         ]);
         $message->load('user');
-        ProcessMessagesMediaJob::dispatch();
+        if($mediaFile){
+            ProcessMessagesMediaJob::dispatch($message);
+        }
 
         return $message;
     }
