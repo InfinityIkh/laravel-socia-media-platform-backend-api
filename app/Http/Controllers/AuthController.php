@@ -3,57 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
-use App\Http\Resources\UserResource;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use App\Services\AuthResolver;
+use App\Services\AuthServices;
 
 class AuthController extends Controller
 {
-    public function register(UserRequest $request){
+    public function __construct(public AuthResolver $resolver){}
 
-        $userInfo = $request->validated();
-
-        $user = User::create([
-            'name' => $userInfo['name'],
-            'email' => $userInfo['email'],
-            'password'=> Hash::make($userInfo['password']),
-            'role' => $userInfo['role'] ?? 'user'
-        ]);
-
-        return response()->json([
-            'user' => new UserResource($user),
-        ]);
+    public function register(AuthServices $authServices, UserRequest $request){
+        //
+        $credentials = $request->validated();
+        return $authServices->register($credentials);
     }
 
-    public function login(Request $request){
-        $userInfo = $request->validate([
-            'email' => ['required','email'],
-            'password' => ['required','min:8','max:255'],
-        ]);
-
-        $user = User::where('email',$userInfo['email'])->first();
-
-        if(!$user || !Hash::check($userInfo['password'],$user->password)){
-            return response()->json([
-                'message' => 'The credentials you provided do not match our records.'
-            ],401);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'user' => new UserResource($user),
-            'token' => $token
-        ],200);
+    public function login(UserRequest $request ,string $type){
+        //
+        $resolver = $this->resolver->resolve($type);
+        return $resolver->login($request);
     }
 
-    public function logout(Request $request){
-        
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json([
-            'message' => 'Logged Out Successfully'
-        ]);
+    public function logout(UserRequest $request ,string $type){
+        //
+        $resolver = $this->resolver->resolve($type);
+        return $resolver->logout($request);
     }
 }
