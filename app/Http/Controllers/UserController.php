@@ -41,7 +41,7 @@ class UserController extends Controller
                 'message' => 'You cannot Report yourself.'
             ],422);
         }
-        
+
         $attributes = $request->validated();
         $report = Report::create([
             'reporter_id' => $request->user()->id,
@@ -144,6 +144,7 @@ class UserController extends Controller
         $user = $userService->insertUser($userInfo , $image);
 
         return response()->json([
+            'message' => 'User created.',
             'user' => new UserResource($user)
         ],201);
     }
@@ -172,10 +173,11 @@ class UserController extends Controller
         $this->authorize('update',[$authUser , $user]);
 
         $userInfo = $request->validated();
-        
+
         $user = $userService->UpdateUser($userInfo , $user , $image);
 
         return response()->json([
+            'message' => 'User updated.',
             'updated_user' => new UserResource($user)
         ],200);
     }
@@ -183,16 +185,16 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request , string $id)
+    public function destroy(Request $request , User $user)
     {
-        if((int)$request->user()->id !== (int)$id && $request->user()->role !== 'admin'){
+        if((int)$request->user()->id !== (int)$user->id && $request->user()->role !== 'admin'){
             return response()->json([
                 'message' => 'You do not have permission to Delete this profile.'
             ],403);
         }
-        $user = User::findOrFail($id);
+
         $user->delete();
-        
+
         return response()->json([
             'message' => 'User Deleted Successfully'
         ],200);
