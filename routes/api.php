@@ -20,8 +20,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 //
-Route::post('/register',[AuthController::class,'register']);
-Route::post('/login',[AuthController::class,'login']);
+Route::post('/auth/register',[AuthController::class,'register']);
+Route::post('/auth/{type}/login',[AuthController::class,'login']);
 
 //Using Laravel Sanctum For Authentification
 Route::middleware('auth:sanctum')->group(function(){
@@ -32,7 +32,7 @@ Route::middleware('auth:sanctum')->group(function(){
         ],200);
     });
     //
-    Route::post('/logout',[AuthController::class,'logout']);
+    Route::post('/auth/{type}/logout',[AuthController::class,'logout']);
     //Crud Operations For User
     Route::get('/users/{user}',[UserController::class,'show']);
     Route::put('/users/{user}',[UserController::class,'update']);
