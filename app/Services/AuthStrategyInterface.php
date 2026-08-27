@@ -7,7 +7,7 @@ use App\Http\Requests\UserRequest;
 interface AuthStrategyInterface
 {
     //
-    public function login(UserRequest $request);
+    public function login(array $credentials): array;
 
-    public function logout(UserRequest $request);
+    public function logout(): void;
 }
