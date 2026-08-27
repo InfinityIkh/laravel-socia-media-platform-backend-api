@@ -19,12 +19,15 @@ use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-//
-Route::post('/auth/register',[AuthController::class,'register']);
-Route::post('/auth/{type}/login',[AuthController::class,'login']);
 
-//Using Laravel Sanctum For Authentification
-Route::middleware('auth:sanctum')->group(function(){
+//Using Rate Limiting For Protect Routes
+Route::middleware('throttle:auth')->group(function () {
+    Route::post('/auth/register',[AuthController::class,'register']);
+    Route::post('/auth/{type}/login',[AuthController::class,'login']);
+});
+
+//Using JSON WEB TOKEN (JWT) For Authentification and Rate Limiting For Protect Routes
+Route::middleware(['auth:api','throttle:api'])->group(function(){
     //
     Route::get('/profile',function (Request $request){
         return response()->json([
