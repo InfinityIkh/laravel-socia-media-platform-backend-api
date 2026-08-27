@@ -13,6 +13,7 @@ class AuthResolver
         $class = match($type){
             'token' => TokenAuthService::class,
             'spa' => SpaAuthService::class,
+            'jwt' => JwtAuthService::class,
             default => throw new InvalidArgumentException("Unsupported authentication type: {$type}")
         };
         return app($class);
