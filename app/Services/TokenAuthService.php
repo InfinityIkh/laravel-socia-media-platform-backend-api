@@ -2,43 +2,36 @@
 
 namespace App\Services;
 
-use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 
 class TokenAuthService implements AuthStrategyInterface
 {
     //
-    public function login(UserRequest $request): JsonResponse
+    public function login(array $credentials): array
     {
         //
-        $credentials = $request->validated();
         $user = User::where('email', $credentials['email'])->first();
         if (!$user ||!Hash::check($credentials['password'], $user->password))
         {
-            return response()->json([
+            return [
                 'message' => 'Invalid credentials.'
-            ], 401);
+            ];
         }
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        return response()->json([
+        return [
             'message' => 'Login successful.',
             'user' => new UserResource($user),
             'token' => $token,
-        ]);
+        ];
     }
 
-    public function logout(UserRequest $request): JsonResponse
+    public function logout(): void
     {
-        $request->user()->tokens()->delete();
-
-        return response()->json([
-            'message' => 'Logout successful.'
-        ]);
+        request()->user()->currentAccessToken()->delete();
     }
 
 }
