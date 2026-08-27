@@ -2,44 +2,38 @@
 
 namespace App\Services;
 
-use App\Http\Requests\UserRequest;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 
 class SpaAuthService implements AuthStrategyInterface
 {
     //
-    public function login(UserRequest $request): JsonResponse
+    public function login(array $credentials): array
     {
         //
-        $credentials = $request->validated();
         if (!Auth::attempt([
             'email' => $credentials['email'],
             'password' => $credentials['password'],
         ])) {
-            return response()->json([
+            return [
                 'message' => 'Invalid credentials.'
-            ], 401);
+            ];
         }
 
-        $request->session()->regenerate();
+        request()->session()->regenerate();
 
-        return response()->json([
+        return [
             'message' => 'Login successful.',
-            'user' => $request->user(),
-        ]);
+            'user' => request()->user(),
+        ];
     }
 
-    public function logout(UserRequest $request): JsonResponse
+    public function logout(): void
     {
         //
         Auth::logout();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
 
-        return response()->json([
-            'message' => 'Logout successful.'
-        ]);
     }
 }
