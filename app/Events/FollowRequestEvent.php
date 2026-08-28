@@ -31,7 +31,7 @@ class FollowRequestEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('sender.'.$this->sender->id.'.follow request receiver.'.$this->receiver->id),
+            new PrivateChannel('sender.'.$this->sender->id.'.follow-request.receiver.'.$this->receiver->id),
         ];
     }
 
