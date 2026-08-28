@@ -29,7 +29,7 @@ class FollowRequestController extends Controller
             ],200);
         }
         //Checking if the user status account is public
-        if(!$user->isprivate){
+        if(!$user->is_private){
             $res = $userServices->followPubliAccount($currentUser ,$user);
             $message = !empty($res['attached']) ? "you started following $user->name" : "you are unfollowed $user->name";
             if(!empty($res['attached'])){
@@ -62,8 +62,8 @@ class FollowRequestController extends Controller
         $currentUser = $request->user();
         $this->authorize('update',[$currentUser ,$follow_request]);
         $currentUser->followers()->syncWithoutDetaching($follow_request->sender_id);
-        $follow_request->delete();
         event(new UserFollowEvent($follow_request->sender , $currentUser));
+        $follow_request->delete();
         return response()->json([
             'message' => "{$follow_request->sender->name} started following you"
         ]);
@@ -78,7 +78,7 @@ class FollowRequestController extends Controller
             'message' => 'The follow request has been rejected.'
         ]);
     }
-    
+
     public function followRequests(Request $request){
         //
         $follow_requests = $request->user()->load('followRequests');
@@ -88,14 +88,14 @@ class FollowRequestController extends Controller
         ],200);
     }
 
-    public function changeAccountStatus(Request $request){
+    public function changeAccountStatus(Request $request)
+    {
         $user = $request->user();
-        !$user->is_private ? $user->is_private = true : $user->is_private = false;
+        $user->is_private = !$user->is_private;
         $user->save();
-        $status = !$user->is_private ? 'public' : 'private';
 
         return response()->json([
-            "message" => "the status of your account is $status"
-        ],200);
+            'message' => 'The status of your account is ' . ($user->is_private ? 'private' : 'public'),
+        ]);
     }
 }

@@ -5,12 +5,10 @@ namespace App\Events;
 use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Override;
 
 class UserFollowEvent implements ShouldBroadcast
 {
@@ -41,11 +39,11 @@ class UserFollowEvent implements ShouldBroadcast
         return [
             'follower' => [
                 'id' => $this->follower->id,
-                'name' => $this->follower->name 
+                'name' => $this->follower->name
             ],
             'followed' => [
                 'id' => $this->followed->id,
-                'name' => $this->followed->name 
+                'name' => $this->followed->name
             ]
         ];
     }
