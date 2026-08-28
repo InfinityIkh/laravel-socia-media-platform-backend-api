@@ -77,7 +77,7 @@ Route::middleware(['auth:api','throttle:api'])->group(function(){
     Route::get('/notifications', [NotificationController::class, 'getAllNotifications']);
     Route::get('/notifications/unread', [NotificationController::class, 'getUnReadNotifications']);
     Route::get('/notifications/read', [NotificationController::class, 'getReadNotifications']);
-    Route::put('/notifications/mark-as-read', [NotificationController::class, 'readingUserNotifications']);
+    Route::patch('/notifications/mark-as-read', [NotificationController::class, 'readingUserNotifications']);
     //Suggestions
     Route::get('/friends-of-friends',[UserController::class , 'friendsOfFriends']);
     Route::get('/may-you-knows',[UserController::class , 'mayYouKnow']);
@@ -91,10 +91,10 @@ Route::middleware(['auth:api','throttle:api'])->group(function(){
     Route::get('/user/blocked_users',[UserController::class,'blocked_users']);
     //follow_requests
     Route::post('/users/{user}/follow',[FollowRequestController::class,'follow']);
-    Route::put('/follow-requests/{id}/accept',[FollowRequestController::class,'acceptFollowRequests']);
-    Route::put('/follow-requests/{id}/reject',[FollowRequestController::class,'rejectFollowRequests']);
+    Route::patch('/follow-requests/{follow_request}/accept',[FollowRequestController::class,'acceptFollowRequests']);
+    Route::patch('/follow-requests/{follow_request}/reject',[FollowRequestController::class,'rejectFollowRequests']);
     Route::get('/follow-requests',[FollowRequestController::class,'followRequests']);
-    Route::put('/change-status',[FollowRequestController::class,'changeAccountStatus']);
+    Route::patch('/change-status',[FollowRequestController::class,'changeAccountStatus']);
     //story
     Route::get('/stories/me',[StoryController::class ,'userStories']);
     Route::post('stories',[StoryController::class,'store']);
