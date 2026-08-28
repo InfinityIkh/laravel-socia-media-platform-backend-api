@@ -14,6 +14,7 @@
         "laravel/tinker": "^2.10.1",
         "pbmedia/laravel-ffmpeg": "^8.9",
         "php-ffmpeg/php-ffmpeg": "^1.4",
+        "php-open-source-saver/jwt-auth": "^2.8",
         "predis/predis": "^3.5"
     },
     "require-dev": {
