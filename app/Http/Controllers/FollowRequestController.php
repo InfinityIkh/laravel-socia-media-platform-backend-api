@@ -2,100 +2,61 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\FollowRequestEvent;
-use App\Events\UserFollowEvent;
 use App\Http\Resources\FollowRequestResource;
 use App\Models\FollowRequest;
 use App\Models\User;
-use App\Services\UserServices;
+use App\Services\FollowServices;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class FollowRequestController extends Controller
 {
+    public function __construct(public FollowServices $followServices){}
     //
-    public function follow (UserServices $userServices , Request $request , User $user){
+    public function follow (Request $request , User $user){
         //
-        $currentUser = $request->user();
-        $this->authorize('view',[$currentUser ,$user]);
-        if($currentUser->is($user)){
-            return response()->json([
-                'message' => 'You cannot follow yourself.'
-            ],422);
-        }
+        $this->authorize('view',$user);
 
-        if($currentUser->following()->whereKey($user->id)->exists()){
-            return response()->json([
-                'message' => "Alreday following $user->name"
-            ],200);
-        }
-        //Checking if the user status account is public
-        if(!$user->is_private){
-            $res = $userServices->followPubliAccount($currentUser ,$user);
-            $message = !empty($res['attached']) ? "you started following $user->name" : "you are unfollowed $user->name";
-            if(!empty($res['attached'])){
-                broadcast(new UserFollowEvent($currentUser ,$user))->toOthers();
-            }
-            return response()->json([
-                'message' => $message
-            ],200);
-        }
-        //if the user status account is private
-        //if the request already exist cancel the follow request
-        $pendingRequest = FollowRequest::where('sender_id',$currentUser->id)->where('receiver_id',$user->id)->first();
-        if($pendingRequest){
-            $pendingRequest->delete();
-            return response()->json([
-                'message' => 'your follow request cancelled'
-            ],200);
-        }
-        //sent the follow request
-        $userServices->sendFollowRequest($currentUser ,$user);
-        broadcast(new FollowRequestEvent($user ,$currentUser))->toOthers();
-        return response()->json([
-            'message' => 'you sent follow request'
-        ],201);
-
+        return response()->json($this->followServices->follow($request->user(),$user));
     }
 
-    public function acceptFollowRequests(Request $request ,FollowRequest $follow_request){
+    public function acceptFollowRequests(Request $request ,FollowRequest $follow_request): JsonResponse
+    {
         //
-        $currentUser = $request->user();
-        $this->authorize('update',[$currentUser ,$follow_request]);
-        $currentUser->followers()->syncWithoutDetaching($follow_request->sender_id);
-        event(new UserFollowEvent($follow_request->sender , $currentUser));
-        $follow_request->delete();
-        return response()->json([
-            'message' => "{$follow_request->sender->name} started following you"
-        ]);
+        $this->authorize('update',$follow_request);
+
+        return response()->json(
+            $this->followServices->acceptFollowRequest($request->user() ,$follow_request)
+        );
     }
 
-    public function rejectFollowRequests(Request $request ,FollowRequest $follow_request){
+    public function rejectFollowRequests(FollowRequest $follow_request): JsonResponse
+    {
         //
-        $currentUser = $request->user();
-        $this->authorize('update',[$currentUser ,$follow_request]);
-        $follow_request->delete();
+        $this->authorize('update',$follow_request);
+        $this->followServices->reject($follow_request);
         return response()->json([
             'message' => 'The follow request has been rejected.'
         ]);
     }
 
-    public function followRequests(Request $request){
+    public function followRequests(Request $request): JsonResponse
+    {
         //
-        $follow_requests = $request->user()->load('followRequests');
+        $follow_requests = $request->user()->followRequests()->latest()->paginate(20);
 
         return response()->json([
-            'follow_requests' => FollowRequestResource::collection($follow_requests->followRequests),
-        ],200);
+            'follow_requests' => FollowRequestResource::collection($follow_requests),
+        ]);
     }
 
-    public function changeAccountStatus(Request $request)
+    public function changeAccountStatus(Request $request): JsonResponse
     {
-        $user = $request->user();
-        $user->is_private = !$user->is_private;
-        $user->save();
+        //
+        $user = $this->followServices->changeStatus($request->user());
 
         return response()->json([
-            'message' => 'The status of your account is ' . ($user->is_private ? 'private' : 'public'),
+            'message' => 'The status of your account is changed to ' . ($user->is_private ? 'private' : 'public'),
         ]);
     }
 }
