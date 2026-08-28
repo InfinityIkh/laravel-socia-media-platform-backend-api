@@ -26,6 +26,6 @@ class FollowRequestListener
     public function handle(FollowRequestEvent $event): void
     {
         //
-        SendFollowRequestNotificationJob::dispatch();
+        SendFollowRequestNotificationJob::dispatch($event->receiver ,$event->sender);
     }
 }
