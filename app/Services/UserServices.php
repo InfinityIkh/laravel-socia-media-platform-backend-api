@@ -12,25 +12,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 
 class UserServices{
-
-    public function followPubliAccount(User $currentUser , User $user){
-        $res = $currentUser->following()->toggle($user->id);
-            if(!empty($res["attached"])){
-                event(new UserFollowEvent($currentUser,$user));
-        }
-        return $res;
-    }
-
-    public function sendFollowRequest(User $currentUser , User $user){
-        $follow_request = FollowRequest::updateOrCreate([
-            'sender_id' => $currentUser->id,
-            'receiver_id' => $user->id],
-            ['status' => 'pending']
-        );
-        SendFollowRequestNotificationJob::dispatch($user ,$currentUser);
-        return $follow_request;
-    }
-    
+    //
     public function insertUser(array $validatedInfo ,?UploadedFile $image):User
     {
         //
