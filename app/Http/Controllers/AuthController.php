@@ -23,7 +23,10 @@ class AuthController extends Controller
         //
         $credentials = $request->validated();
         $resolver = $this->resolver->resolve($type);
-        return response()->json($resolver->login($credentials));
+        $response = $resolver->login($credentials);
+        return response()->json(
+            $response['body'] ,$response['status']
+        );
     }
 
     public function logout(string $type): JsonResponse
