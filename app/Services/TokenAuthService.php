@@ -16,16 +16,22 @@ class TokenAuthService implements AuthStrategyInterface
         if (!$user ||!Hash::check($credentials['password'], $user->password))
         {
             return [
-                'message' => 'Invalid credentials.'
+                'status' => 401,
+                'body' => [
+                    'message' => 'Invalid credentials'
+                ]
             ];
         }
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return [
-            'message' => 'Login successful.',
-            'user' => new UserResource($user),
-            'token' => $token,
+            'status' => 200,
+            'body' => [
+                'message' => 'Login successful.',
+                'user' => new UserResource($user),
+                'token' => $token,
+            ]
         ];
     }
 
