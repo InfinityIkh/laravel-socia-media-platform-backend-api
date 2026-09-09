@@ -26,7 +26,7 @@ class CommentController extends Controller
                 'message' => 'You cannot Report your comment.'
             ],422);
         }
-        
+
         $attributes = $request->validated();
         $report = Report::create([
             'reporter_id' => $request->user()->id,
@@ -44,9 +44,15 @@ class CommentController extends Controller
     {
         //
         $this->authorize('view',[$request->user() ,$post]);
-        $comments = $post->comments()->visible($request->user())->with('user')->get();
+        $comments = $post->comments()->visible($request->user())->with('user')->paginate();
         return response()->json([
-            'comments' => CommentResource::collection($comments)
+            'comments' => CommentResource::collection($comments),
+            'pagination' => [
+                'total' => $comments->total(),
+                'current_page' => $comments->currentPage(),
+                'per_page' => $comments->perPage(),
+                'last_page' => $comments->lastPage()
+            ]
         ],200);
     }
 
