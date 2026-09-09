@@ -125,10 +125,15 @@ class UserController extends Controller
     public function index(Request $request)
     {
         //
-        $users = User::visible($request->user())->get();
+        $users = User::visible($request->user())->paginate();
 
         return response()->json([
-            'users' => UserResource::collection($users)
+            'pagination' => [
+                'total' => $users->total(),
+                'per_page' => $users->perPage(),
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage()
+            ]
         ],200);
     }
 
