@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Resources\UserResource;
 use App\Models\Post;
 use App\Models\User;
-use App\Services\PostService;
+use App\Services\PostServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 
 class SaveController extends Controller
 {
     //
-    public function save(PostService $postService ,Request $request , Post $post){
+    public function save(PostServices $postService ,Request $request , Post $post){
         //
         $this->authorize('view',$post);
         $currentUser = $request->user();
