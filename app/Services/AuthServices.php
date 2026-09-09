@@ -17,7 +17,6 @@ class AuthServices
             'name' => $credentials['name'],
             'email' => $credentials['email'],
             'password'=> Hash::make($credentials['password']),
-            'role' => $credentials['role'] ?? 'user'
         ]);
         return response()->json([
             'user' => new UserResource($user),
