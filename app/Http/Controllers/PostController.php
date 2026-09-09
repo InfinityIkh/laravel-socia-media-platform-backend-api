@@ -22,7 +22,7 @@ class PostController extends Controller
     public function report(ReportRequest $request , Post $post){
         //
         $this->authorize('view',$post);
-        
+
         if((int)$post->user_id === (int)$request->user()->id){
             return response()->json([
                 'message' => 'You cannot Report your Post.'
@@ -44,9 +44,15 @@ class PostController extends Controller
 
     public function index(Request $request)
     {
-        $posts = Post::visible($request->user())->get();
+        $posts = Post::visible($request->user())->paginate();
         return response()->json([
-            'posts' => PostResource::collection($posts)
+            'posts' => PostResource::collection($posts),
+            'pagination' => [
+                'total' => $posts->total(),
+                'per_page' => $posts->perPage(),
+                'current_page' => $posts->currentPage(),
+                'last_page' => $posts->lastPage()
+            ]
         ],200);
     }
 
@@ -101,7 +107,7 @@ class PostController extends Controller
         $images = $request->file('images');
 
         $updatedPost = $postService->updatePost($validated , $post , $images);
-        
+
         return response()->json([
             'updated_post'=> new PostResource($updatedPost)
         ],200);
