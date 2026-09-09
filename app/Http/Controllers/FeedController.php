@@ -13,19 +13,25 @@ class FeedController extends Controller
     public function index(Request $request){
         //
         $currentUser = $request->user();
-        
-        $followingPosts = Cache::remember('user:'.$currentUser->id.':following:posts' ,3600 ,function() use($currentUser){
+
+        $posts = Cache::remember('user:'.$currentUser->id.':following:posts' ,3600 ,function() use($currentUser){
             $followingIds = $currentUser->following()->pluck('users.id');
             $posts = Post::with(['user'])
                                 ->visible($currentUser)
                                 ->whereIn('user_id',$followingIds)
                                 ->latest()
-                                ->get();
+                                ->paginate();
             return $posts;
         });
 
         return response()->json([
-            'posts' => PostResource::collection($followingPosts)
+            'posts' => PostResource::collection($posts),
+            'pagination' => [
+                'total' => $posts->total(),
+                'per_page' => $posts->perPage(),
+                'current_page' => $posts->currentPage(),
+                'last_page' => $posts->lastPage()
+            ]
         ]);
     }
 
@@ -36,12 +42,18 @@ class FeedController extends Controller
                        ->visible($currentUser)
                        ->withCount('likes')
                        ->orderBy('likes_count','desc')
-                       ->get();
+                       ->paginate();
             return $posts;
         });
-                       
+
         return response()->json([
-            'posts' => PostResource::collection($posts)
+            'posts' => PostResource::collection($posts),
+            'pagination' => [
+                'total' => $posts->total(),
+                'per_page' => $posts->perPage(),
+                'current_page' => $posts->currentPage(),
+                'last_page' => $posts->lastPage()
+            ]
         ], 200);
     }
 
@@ -52,12 +64,18 @@ class FeedController extends Controller
                        ->visible($currentUser)
                        ->withCount('views')
                        ->orderBy('views_count' , 'desc')
-                       ->get();
+                       ->paginate();
             return $posts;
         });
 
         return response()->json([
-            'posts' => PostResource::collection($posts)
+            'posts' => PostResource::collection($posts),
+            'pagination' => [
+                'total' => $posts->total(),
+                'per_page' => $posts->perPage(),
+                'current_page' => $posts->currentPage(),
+                'last_page' => $posts->lastPage()
+            ]
         ], 200);
     }
 }
