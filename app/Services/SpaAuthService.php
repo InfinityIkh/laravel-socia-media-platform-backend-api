@@ -15,15 +15,21 @@ class SpaAuthService implements AuthStrategyInterface
             'password' => $credentials['password'],
         ])) {
             return [
-                'message' => 'Invalid credentials.'
+                'status' => 401,
+                'body' => [
+                    'message' => 'Invalid credentials'
+                ]
             ];
         }
 
         request()->session()->regenerate();
 
         return [
-            'message' => 'Login successful.',
-            'user' => request()->user(),
+            'status' => 200,
+            'body' => [
+                'message' => 'Login successful.',
+                'user' => request()->user(),
+            ]
         ];
     }
 
