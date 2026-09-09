@@ -17,9 +17,12 @@ class JwtAuthService implements AuthStrategyInterface
         }
 
         return [
-            'access_token' => $token,
-            'token_type'   => 'bearer',
-            'expires_in'   => auth('api')->factory()->getTTL() * 60,
+            'status' => 200,
+            'body' => [
+                'access_token' => $token,
+                'token_type'   => 'bearer',
+                'expires_in'   => auth('api')->factory()->getTTL() * 60,
+            ]
         ];
     }
 
