@@ -6,14 +6,14 @@ use App\Events\UserRepostedEvent;
 use App\Http\Resources\UserResource;
 use App\Models\Post;
 use App\Models\User;
-use App\Services\PostService;
+use App\Services\PostServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 
 class RepostController extends Controller
 {
     //
-    public function repost(PostService $postService ,Request $request , Post $post){
+    public function repost(PostServices $postService ,Request $request , Post $post){
         //
         $currentUser = $request->user();
         $this->authorize('view',$post);
@@ -27,7 +27,7 @@ class RepostController extends Controller
 
     public function repostsUsers(Post $post){
         //
-        $$usersDb = $post->reposts()->get();
+        $usersDb = $post->reposts()->get();
 
         $key = 'post:'.$post->id.':reposts';
         $usersIds = Redis::sMembers($key);
