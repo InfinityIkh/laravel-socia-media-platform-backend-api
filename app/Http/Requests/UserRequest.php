@@ -33,7 +33,6 @@ class UserRequest extends FormRequest
         return [
             'name' => [$this->isMethod('post') ? 'required' : 'nullable','min:5','max:255'],
             'email' => [$this->isMethod('post') ? 'required' : 'nullable','email', Rule::unique('users', 'email')->ignore($userId),],
-            'role' => ['nullable', 'string', 'in:user,admin'],
             'image' => ['nullable','image','mimes:jpeg,jpg,png,webp','max:2048'],
             'password' => [
                 $this->isMethod('post') ? 'required' : 'nullable' ,
